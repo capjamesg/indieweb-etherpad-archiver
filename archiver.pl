@@ -22,7 +22,8 @@ sub said {
     my @split_contents = split " ", $body;
     my $url = $split_contents[1];
 
-    if ($body =~ /^\!archive http/) {
+    # http or https events.indieweb.org
+    if ($body =~ /^\!archive http[s]?:\/\/events.indieweb.org/) {
         my $result = CreateDocument::create_page($url);
 
         $self->say(channel => $arguments->{channel}, body => $result);

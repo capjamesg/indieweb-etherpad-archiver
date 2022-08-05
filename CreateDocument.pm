@@ -12,12 +12,19 @@ sub get_etherpad_contents {
     my $date_of_event = $_[1];
     my $event_page_link = $_[2];
     my $event_name = $_[3];
-
     my $etherpad_ua = LWP::UserAgent->new;
 
     my $etherpad_request = $etherpad_ua->get($first_found_etherpad);
 
     my $etherpad_content = $etherpad_request->decoded_content;
+
+    for my $line (split /\n/, $etherpad_content) {
+        if ($line =~ /^-/) {
+            $line =~ s/^-/* /;
+        }
+    }
+
+    $first_found_etherpad =~ s/\/export\/txt//;
 
     my $header = "
 '''<dfn>$event_name</dfn>''' was an IndieWeb meetup on Zoom held on $date_of_event.
@@ -61,7 +68,7 @@ sub create_page {
     my $first_found_etherpad = "";
 
     for my $link ($links->each) {
-        if (!$href || $link->attr('href')) {
+        if (!$link || !$link->attr('href')) {
             next;
         }
 
@@ -90,6 +97,7 @@ sub create_page {
 
     $event_name = lc($event_name);
     $event_name =~ s/-//g;
+    $event_name =~ s/\//-/g;
     $event_name =~ s/  / /g;
     $event_name =~ s/ /-/g;
 
@@ -101,7 +109,7 @@ sub create_page {
         "token" => $csrf_token
     );
 
-    print $csrf_token, $url;
+    # print $csrf_token, $url;
 
     my $l = $ua->post($url, \%request);
 
