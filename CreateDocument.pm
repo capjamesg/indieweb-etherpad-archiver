@@ -3,6 +3,9 @@ package CreateDocument;
 use warnings;
 use strict;
 
+use Dotenv;
+Dotenv->load;
+
 
 sub get_etherpad_contents {
     my $first_found_etherpad = $_[0];
@@ -58,7 +61,12 @@ sub create_page {
     my $first_found_etherpad = "";
 
     for my $link ($links->each) {
+        if (!$href || $link->attr('href')) {
+            next;
+        }
+
         my $href = $link->attr('href');
+
         if ($href =~ /etherpad.indieweb.org/) {
             $first_found_etherpad = $href;
         }
@@ -70,7 +78,7 @@ sub create_page {
 
     $first_found_etherpad .= "/export/txt";
 
-    my $url = $ENV{'wiki_url'};
+    my $url = $ENV{WIKI_URL};
 
     my $ua = LWP::UserAgent->new(
         cookie_jar => {},
@@ -93,13 +101,15 @@ sub create_page {
         "token" => $csrf_token
     );
 
-    # my $l = $ua->post($url, \%request);
+    print $csrf_token, $url;
 
-    # if ($l->is_success) {
-    #     return "Created https://indieweb.org/events/$date_of_event-$event_name. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
-    # } else {
-    #     return "There was an error and your wiki entry was not created."
-    # }
+    my $l = $ua->post($url, \%request);
+
+    if ($l->is_success) {
+        return "Created https://indieweb.org/events/$date_of_event-$event_name. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
+    } else {
+        return "There was an error and your wiki entry was not created."
+    }
 }
 
 1;

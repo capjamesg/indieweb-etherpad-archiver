@@ -33,12 +33,17 @@ sub said {
 
 package main;
 
+use Dotenv;
+Dotenv->load;
+
+print $ENV{IRC_NICK};
+
 my $bot = UppercaseBot->new(
-    server      => $ENV{'irc_server'},
-    port        => $ENV{'irc_port'},
-    channels    => ["#$ENV{'irc_channel'}"],
-    nick        => $ENV{'irc_nick'},
-    name        => $ENV{'irc_nick'}
+    server      => $ENV{IRC_SERVER},
+    port        => $ENV{IRC_PORT},
+    channels    => ["#$ENV{IRC_CHANNEL}"],
+    nick        => $ENV{IRC_NICK},
+    name        => $ENV{IRC_NICK}
 );
 
 $bot->run();
