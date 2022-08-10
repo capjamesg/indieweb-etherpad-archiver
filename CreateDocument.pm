@@ -52,6 +52,7 @@ sub get_etherpad_contents {
 
 sub create_page {
     my $event_page_link = $_[0];
+    my $wiki_page_url = $_[1];
 
     my $event_page_ua = LWP::UserAgent->new;
 
@@ -101,10 +102,14 @@ sub create_page {
     $event_name =~ s/  / /g;
     $event_name =~ s/ /-/g;
 
+    if (!$wiki_page_url) {
+        $wiki_page_url = "events/$date_of_event-$event_name";
+    }
+
     my %request = (
         "action" => "edit",
         "format" => "json",
-        "title" => "events/$date_of_event-$event_name",
+        "title" => $wiki_page_url,
         "text" => $wiki_entry_body,
         "token" => $csrf_token
     );
@@ -114,7 +119,7 @@ sub create_page {
     my $l = $ua->post($url, \%request);
 
     if ($l->is_success) {
-        return "Created https://indieweb.org/events/$date_of_event-$event_name. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
+        return "Created https://indieweb.org/$wiki_page_url. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
     } else {
         return "There was an error and your wiki entry was not created."
     }
