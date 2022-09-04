@@ -33,8 +33,12 @@ sub said {
         my $result = CreateDocument::create_page($url, $wiki_page_url);
 
         $self->say(channel => $arguments->{channel}, body => $result);
+    } elsif ($body =~ /^\!archive http[s]?:\/\/etherpad.indieweb.org/) {
+        my $result = CreateDocument::create_page($url, $wiki_page_url, 1);
+
+        $self->say(channel => $arguments->{channel}, body => $result);
     } elsif ($body =~ /^\!archive/) {
-        $self->say(channel => $arguments->{channel}, body => "Usage: !archive <https://events.indieweb.org/link/to/events/page/> <events/wiki-url>");
+        $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> <events/wiki-url>");
     }
 }
 

@@ -4,14 +4,18 @@ use warnings;
 use strict;
 
 use Dotenv;
-Dotenv->load;
+use Mojo::DOM;
+use URI::Find;
 
+Dotenv->load;
 
 sub get_etherpad_contents {
     my $first_found_etherpad = $_[0];
     my $date_of_event = $_[1];
     my $event_page_link = $_[2];
     my $event_name = $_[3];
+    my $is_etherpad = $_[4] || 0;
+
     my $etherpad_ua = LWP::UserAgent->new;
 
     my $etherpad_request = $etherpad_ua->get($first_found_etherpad);
@@ -22,6 +26,32 @@ sub get_etherpad_contents {
         if ($line =~ /^-/) {
             $line =~ s/^-/* /;
         }
+    }
+
+    my @all_uris;
+
+    my $parsed_document = URI::Find->new(sub {
+        my ($uri) = shift;
+        push @all_uris, $uri;
+        return $uri;
+    });
+
+    $parsed_document->find(\$etherpad_content);
+
+    for my $uri (@all_uris) {
+        if (index ($uri, "https://indieweb.org/") == 0) {
+            my $slug = substr($uri, 21);
+            # replace uri with slug
+            $etherpad_content = ($etherpad_content =~ s/$uri/[[$slug]]/r);
+        } elsif (index ($uri, "http://indieweb.org/") == 0) {
+            my $slug = substr($uri, 20);
+            # replace uri with slug
+            $etherpad_content = ($etherpad_content =~ s/$uri/[[$slug]]/r);
+        }
+    }
+
+    if ($is_etherpad) {
+        return $etherpad_content;
     }
 
     $first_found_etherpad =~ s/\/export\/txt//;
@@ -53,30 +83,45 @@ sub get_etherpad_contents {
 sub create_page {
     my $event_page_link = $_[0];
     my $wiki_page_url = $_[1];
+    my $is_etherpad = $_[2] || 0;
 
     my $event_page_ua = LWP::UserAgent->new;
 
     my $parsed_event_page = Mojo::DOM->new($event_page_ua->get($event_page_link)->decoded_content);
 
-    # find all links
-    my $links = $parsed_event_page->find('a');
+    my $first_found_etherpad;
 
-    my $event_name = $parsed_event_page->at('.p-name')->text;
-    my @event_date = split 'T', $parsed_event_page->at('.dt-start')->attr('value');
+    my $event_name;
+    my $date_of_event;
+    my $links;
 
-    my $date_of_event = $event_date[0];
+    if ($is_etherpad == 1) {
+        $first_found_etherpad = $event_page_link;
+        $event_name = $wiki_page_url;
+        $date_of_event = "";
+    } else {
+        $first_found_etherpad = "";
 
-    my $first_found_etherpad = "";
+        # find all links
+        $links = $parsed_event_page->find('a');
 
-    for my $link ($links->each) {
-        if (!$link || !$link->attr('href')) {
-            next;
-        }
+        $event_name = $parsed_event_page->at('.p-name')->text;
+        my @event_date = split 'T', $parsed_event_page->at('.dt-start')->attr('value');
 
-        my $href = $link->attr('href');
+        $date_of_event = $event_date[0];
 
-        if ($href =~ /etherpad.indieweb.org/) {
-            $first_found_etherpad = $href;
+        for my $link ($links->each) {
+            if (!$link || !$link->attr('href')) {
+                next;
+            }
+
+            my $href = $link->attr('href');
+
+            if ($href =~ /etherpad.indieweb.org/) {
+                $first_found_etherpad = $href;
+
+                last;
+            }
         }
     }
 
@@ -113,8 +158,6 @@ sub create_page {
         "text" => $wiki_entry_body,
         "token" => $csrf_token
     );
-
-    # print $csrf_token, $url;
 
     my $l = $ua->post($url, \%request);
 
