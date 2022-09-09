@@ -6,6 +6,7 @@ use strict;
 use Dotenv;
 use Mojo::DOM;
 use URI::Find;
+use JSON;
 
 Dotenv->load;
 
@@ -20,12 +21,22 @@ sub get_etherpad_contents {
 
     my $etherpad_request = $etherpad_ua->get($first_found_etherpad);
 
+    if (!$etherpad_request->is_success) {
+        return "Etherpad could not be retrieved.";
+    }
+
     my $etherpad_content = $etherpad_request->decoded_content;
 
+    my $line_count = 0;
+
     for my $line (split /\n/, $etherpad_content) {
+        if ($line_count lt 5 && $line =~ m/Archived to:/) {
+            return "This etherpad has already been archived.", 1;
+        }
         if ($line =~ /^-/) {
             $line =~ s/^-/* /;
         }
+        $line_count++;
     }
 
     my @all_uris;
@@ -77,7 +88,23 @@ sub get_etherpad_contents {
 
     $wiki_entry_body .= $footer;
 
-    $wiki_entry_body;
+    return $wiki_entry_body, 0;
+}
+
+sub check_if_page_exists {
+    my $wiki_page_url = $_[0];
+
+    my $mediawiki_ua = LWP::UserAgent->new; 
+
+    my $response = $mediawiki_ua->get("https://indieweb.org/wiki/api.php?action=parse&page=$wiki_page_url&prop=text&formatversion=2&format=json");
+
+    my $decoded_json = decode_json($response->decoded_content);
+
+    if ($decoded_json->{error}) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 sub create_page {
@@ -85,9 +112,21 @@ sub create_page {
     my $wiki_page_url = $_[1];
     my $is_etherpad = $_[2] || 0;
 
+    my $mediawiki_page_exists = check_if_page_exists($wiki_page_url);
+
+    if ($mediawiki_page_exists eq 0) {
+        return "A wiki page already exists at the specified URL."
+    }
+
     my $event_page_ua = LWP::UserAgent->new;
 
-    my $parsed_event_page = Mojo::DOM->new($event_page_ua->get($event_page_link)->decoded_content);
+    my $event_page = $event_page_ua->get($event_page_link);
+
+    if (!$event_page->is_success) {
+        return "Event page could not be retrieved.";
+    }
+
+    my $parsed_event_page = Mojo::DOM->new($event_page>decoded_content);
 
     my $first_found_etherpad;
 
@@ -139,7 +178,11 @@ sub create_page {
 
     my $login = WikiActions::login_to_mediawiki($ua);
     my $csrf_token = WikiActions::get_csrf_token($ua);
-    my $wiki_entry_body = get_etherpad_contents($first_found_etherpad, $date_of_event, $event_page_link, $event_name);
+    my $wiki_entry_body, my $success = get_etherpad_contents($first_found_etherpad, $date_of_event, $event_page_link, $event_name);
+    
+    if ($success eq 1) {
+        return $wiki_entry_body;
+    }
 
     $event_name = lc($event_name);
     $event_name =~ s/-//g;
@@ -159,13 +202,13 @@ sub create_page {
         "token" => $csrf_token
     );
 
-    my $l = $ua->post($url, \%request);
+    # my $l = $ua->post($url, \%request);
 
-    if ($l->is_success) {
-        return "Created https://indieweb.org/$wiki_page_url. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
-    } else {
-        return "There was an error and your wiki entry was not created."
-    }
+    # if ($l->is_success) {
+    #     return "Created https://indieweb.org/$wiki_page_url. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
+    # } else {
+    #     return "There was an error and your wiki entry was not created."
+    # }
 }
 
 1;

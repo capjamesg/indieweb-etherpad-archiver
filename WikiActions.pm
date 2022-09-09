@@ -15,17 +15,19 @@ sub login_to_mediawiki {
 
     my $login_response = $ua->post($ENV{WIKI_URL}.$data);
 
-    my $json_response = JSON::decode_json($login_response->decoded_content);
+    if ($login_response->is_success) {
+        my $json_response = JSON::decode_json($login_response->decoded_content);
 
-    my %login_data = (
-        "lgname" => $ENV{LGNAME},
-        "lgpassword" => $ENV{LGPASSWORD},
-        "lgtoken" => $json_response->{'query'}->{'tokens'}->{'logintoken'},
-        "format" => "json",
-        "action" => "login"
-    );
+        my %login_data = (
+            "lgname" => $ENV{LGNAME},
+            "lgpassword" => $ENV{LGPASSWORD},
+            "lgtoken" => $json_response->{'query'}->{'tokens'}->{'logintoken'},
+            "format" => "json",
+            "action" => "login"
+        );
 
-    $ua->post($ENV{WIKI_URL}, \%login_data);
+        $ua->post($ENV{WIKI_URL}, \%login_data);
+    }
 }
 
 sub get_csrf_token {
