@@ -126,7 +126,7 @@ sub create_page {
         return "Event page could not be retrieved.";
     }
 
-    my $parsed_event_page = Mojo::DOM->new($event_page>decoded_content);
+    my $parsed_event_page = Mojo::DOM->new($event_page->decoded_content);
 
     my $first_found_etherpad;
 
@@ -202,13 +202,13 @@ sub create_page {
         "token" => $csrf_token
     );
 
-    # my $l = $ua->post($url, \%request);
+    my $l = $ua->post($url, \%request);
 
-    # if ($l->is_success) {
-    #     return "Created https://indieweb.org/$wiki_page_url. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
-    # } else {
-    #     return "There was an error and your wiki entry was not created."
-    # }
+    if ($l->is_success) {
+        return "Created https://indieweb.org/$wiki_page_url. Please review the page to ensure the document is correctly formatted and remove any unnecessary text.";
+    } else {
+        return "There was an error and your wiki entry was not created."
+    }
 }
 
 1;
