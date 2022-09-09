@@ -30,7 +30,7 @@ sub get_etherpad_contents {
     my $line_count = 0;
 
     for my $line (split /\n/, $etherpad_content) {
-        if ($line_count lt 5 && $line =~ m/Archived /) {
+        if ($line_count lt 5 && $line =~ m/Archived/) {
             return ("This etherpad has already been archived.", 1);
         }
         if ($line =~ /^-/) {
