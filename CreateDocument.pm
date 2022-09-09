@@ -22,7 +22,7 @@ sub get_etherpad_contents {
     my $etherpad_request = $etherpad_ua->get($first_found_etherpad);
 
     if (!$etherpad_request->is_success) {
-        return "Etherpad could not be retrieved.";
+        return ("Etherpad could not be retrieved.", 1);
     }
 
     my $etherpad_content = $etherpad_request->decoded_content;
@@ -31,7 +31,7 @@ sub get_etherpad_contents {
 
     for my $line (split /\n/, $etherpad_content) {
         if ($line_count lt 5 && $line =~ m/Archived to:/) {
-            return "This etherpad has already been archived.", 1;
+            return ("This etherpad has already been archived.", 1);
         }
         if ($line =~ /^-/) {
             $line =~ s/^-/* /;
@@ -62,7 +62,7 @@ sub get_etherpad_contents {
     }
 
     if ($is_etherpad) {
-        return $etherpad_content;
+        return ($etherpad_content, 0);
     }
 
     $first_found_etherpad =~ s/\/export\/txt//;
@@ -88,7 +88,7 @@ sub get_etherpad_contents {
 
     $wiki_entry_body .= $footer;
 
-    return $wiki_entry_body, 0;
+    return ($wiki_entry_body, 0);
 }
 
 sub check_if_page_exists {
@@ -178,7 +178,7 @@ sub create_page {
 
     my $login = WikiActions::login_to_mediawiki($ua);
     my $csrf_token = WikiActions::get_csrf_token($ua);
-    my $wiki_entry_body, my $success = get_etherpad_contents($first_found_etherpad, $date_of_event, $event_page_link, $event_name);
+    my ($wiki_entry_body, $success) = get_etherpad_contents($first_found_etherpad, $date_of_event, $event_page_link, $event_name);
     
     if ($success eq 1) {
         return $wiki_entry_body;
