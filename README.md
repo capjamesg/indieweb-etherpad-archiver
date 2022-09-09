@@ -9,7 +9,9 @@ This tool provides an interface over IRC through which an Etherpad page linked t
 To archive a document using the bot, you can use the following command in the IRC channel to which the archiver is connected:
 
 ```
-!archive <url>
+!archive <events_page_url> <example/page> - Archive an events.indieweb.org page, save to example/page
+!archive <etherpad_url> <example/page> - Archive an etherpad.indieweb.org page, save to example/page
+!archive help - Show help
 ```
 
 ## Getting Started
