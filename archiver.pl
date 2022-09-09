@@ -19,16 +19,17 @@ sub said {
     my $arguments = shift;
 
     my $body = $arguments->{body};
-    
+
     # remove <IWDiscordGateway> from message
     $body =~ s/<IWDiscordGateway>//g;
+
+    # remove text in <> at beginning
+    $body =~ s/<(.*?)>//g;
 
     my @split_contents = split " ", $body;
     my $url = $split_contents[1];
     my $wiki_page_url = $split_contents[2] || 0;
-
-    # remove text in <> at beginning
-    $url =~ s/<(.*?)>//g;
+    
     # strip spaces from beginning
     $url =~ s/^\s+//;
 
