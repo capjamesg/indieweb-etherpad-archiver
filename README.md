@@ -49,7 +49,7 @@ This project was built using Perl.
 
 ## License
 
-This project is licensed under an [MIT license](LICENSE).
+This project is licensed under an [MIT 0 license](LICENSE).
 
 ## Contributing
 
