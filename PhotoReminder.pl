@@ -52,11 +52,6 @@ for my $event (@events) {
 sub connected {
     my $self = shift;
 
-    $self->say(
-        channel => $self->{channels}[0],
-        body    => "Let's try again, shall we?"
-    );
-
     my $message = "Good day! The following event pages may be missing a photo: \n";
 
     for my $event (@events_requiring_photo) {
@@ -67,6 +62,9 @@ sub connected {
         channel => $self->{channels}[0],
         body    => $message
     );
+
+    # exit the bot
+    exit;
 }
 
 package main;
@@ -78,8 +76,8 @@ my $bot = UppercaseBot->new(
     server      => $ENV{IRC_SERVER},
     port        => $ENV{IRC_PORT},
     channels    => ["#$ENV{IRC_CHANNEL}"],
-    nick        => $ENV{IRC_NICK},
-    name        => $ENV{IRC_NICK}
+    nick        => "cali-iwc-photo",
+    name        => "cali-iwc-photo"
 );
 
 $bot->run();

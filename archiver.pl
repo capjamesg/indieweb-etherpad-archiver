@@ -28,7 +28,12 @@ sub said {
 
     my @split_contents = split " ", $body;
     my $url = $split_contents[1];
-    my $wiki_page_url = $split_contents[2] || 0;
+    my $wiki_page_url = $split_contents[2];
+
+    if (!$wiki_page_url)
+        $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> <events/wiki-url>");
+        return;
+    }
     
     # strip spaces from beginning
     $url =~ s/^\s+//;
