@@ -30,13 +30,15 @@ sub said {
     my $url = $split_contents[1];
     my $wiki_page_url = $split_contents[2];
 
-    if (!$wiki_page_url)
+    # strip spaces from beginning
+    $url =~ s/^\s+//;
+
+    # if body starts with !archive and is invalid
+    if (!$wiki_page_url && $body =~ /^\!archive/) {
         $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> <events/wiki-url>");
         return;
     }
     
-    # strip spaces from beginning
-    $url =~ s/^\s+//;
 
     # http or https events.indieweb.org
     if ($body =~ /^\!archive http[s]?:\/\/events.indieweb.org/) {
@@ -49,6 +51,8 @@ sub said {
         $self->say(channel => $arguments->{channel}, body => $result);
     } elsif ($body =~ /^\!archive/) {
         $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> <events/wiki-url>");
+    } elsif ($body =~ /^\!february/) {
+        $self->say(channel => $arguments->{channel}, body => "It's February 2nd");
     }
 }
 
