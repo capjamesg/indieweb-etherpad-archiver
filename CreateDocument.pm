@@ -112,6 +112,9 @@ sub create_page {
     my $wiki_page_url = $_[1];
     my $is_etherpad = $_[2] || 0;
 
+    # trim / from start of wiki_page_url
+    $wiki_page_url =~ s/^\///;
+
     my $mediawiki_page_exists = check_if_page_exists($wiki_page_url);
 
     if ($mediawiki_page_exists eq 0) {
