@@ -68,12 +68,9 @@ sub get_etherpad_contents {
     $first_found_etherpad =~ s/\/export\/txt//;
 
     my $header = "
-'''<dfn>$event_name</dfn>''' was an IndieWeb meetup on Zoom held on $date_of_event.
+'''<dfn>[$event_page_link $event_name]</dfn>''' was an IndieWeb meetup on Zoom held on $date_of_event.
 
-* $event_page_link
-* When: $date_of_event
 * Archived from: $first_found_etherpad
-
 
     ";
 
