@@ -199,7 +199,8 @@ sub create_page {
         "format" => "json",
         "title" => $wiki_page_url,
         "text" => $wiki_entry_body,
-        "token" => $csrf_token
+        "token" => $csrf_token,
+        "summary" => "Created event page using IndieWeb events / Etherpad archiver"
     );
 
     my $l = $ua->post($url, \%request);
