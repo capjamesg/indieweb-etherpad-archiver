@@ -34,8 +34,8 @@ sub said {
     $url =~ s/^\s+//;
 
     # if body starts with !archive and is invalid
-    if (!$wiki_page_url && $body =~ /^\!archive/) {
-        $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> <events/wiki-url>");
+    if ($body =~ /^\!archive help/) {
+        $self->say(channel => $arguments->{channel}, body => "Usage: !archive <event page URL or Etherpad URL> (<events/wiki-url>)?");
         return;
     }
     
