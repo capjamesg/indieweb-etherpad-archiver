@@ -191,9 +191,11 @@ sub create_page {
     $event_name =~ s/ /-/g;
 
     if (!$wiki_page_url) {
-        $wiki_page_url = "events/$date_of_event-$event_name";
+        # make url events/first_found_etherpad slug, after https://etherpad.indieweb.org/
+        $first_found_etherpad_slug = substr($first_found_etherpad, 30);
+        $wiki_page_url = "events/$first_found_etherpad_slug";
     }
-
+    
     my %request = (
         "action" => "edit",
         "format" => "json",
