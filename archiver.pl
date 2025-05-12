@@ -25,6 +25,8 @@ sub said {
 
     # remove text in <> at beginning
     $body =~ s/<(.*?)>//g;
+    # strip spaces
+    $body =~ s/^\s+//;
 
     my @split_contents = split " ", $body;
     my $url = $split_contents[1];
@@ -39,7 +41,6 @@ sub said {
         return;
     }
     
-
     # http or https events.indieweb.org
     if ($body =~ /^\!archive http[s]?:\/\/events.indieweb.org/) {
         my $result = CreateDocument::create_page($url, $wiki_page_url);
