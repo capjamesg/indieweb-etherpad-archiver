@@ -21,6 +21,8 @@ sub get_etherpad_contents {
 
     my $etherpad_request = $etherpad_ua->get($first_found_etherpad);
 
+    my $is_front_end_study_hall = ($first_found_etherpad =~ m/front-end-study-hall/);
+
     if (!$etherpad_request->is_success) {
         return ("Etherpad could not be retrieved.", 1);
     }
@@ -76,12 +78,15 @@ sub get_etherpad_contents {
 
     my $wiki_entry_body = $header . $etherpad_content;
 
-    my $footer = "
+    my $footer = "\n\n";
 
-{{Homebrew Website Club}}
-
-[[Category:Events]]
-    ";
+    if ($is_front_end_study_hall) {
+        $footer .= "{{Front End Study Hall}}\n\n";
+        $footer .= "[[Category:Front_end]]\n";
+    } else {
+        $footer .= "{{Homebrew Website Club}}\n\n";
+    }
+    $footer .= "[[Category:Events]]\n\t";
 
     $wiki_entry_body .= $footer;
 
