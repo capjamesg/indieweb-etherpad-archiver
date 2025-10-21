@@ -117,7 +117,7 @@ sub create_page {
     # trim / from start of wiki_page_url
     # trim /export/txt if carried over from etherpad
     $wiki_page_url =~ s/^\///;
-    wiki_page_url =~ s/\/export\/txt//;
+    $wiki_page_url =~ s/\/export\/txt//;
 
     my $mediawiki_page_exists = check_if_page_exists($wiki_page_url);
 
