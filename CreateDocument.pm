@@ -27,6 +27,12 @@ sub get_etherpad_contents {
     if (!$etherpad_request->is_success) {
         return ("Etherpad could not be retrieved.", 1);
     }
+    my $date_inside_url = '';
+    # look for date pattern in the first_found_etherpad url
+    if ($first_found_etherpad =~ m/(\d{4})-(\d{2})-(\d{2})/) {
+        $date_inside_url = "$1-$2-$3";
+    }
+
 
     my $etherpad_content = $etherpad_request->decoded_content;
 
@@ -82,7 +88,11 @@ sub get_etherpad_contents {
     my $footer = "\n\n";
 
     if ($is_front_end_study_hall) {
-        $footer .= "{{Front End Study Hall}}\n\n";
+        if ($date_inside_url) {
+            $footer .= "{{Front End Study Hall|date=$date_inside_url}}\n\n";
+        } else {
+            $footer .= "{{Front End Study Hall}}\n\n";
+        }
         $footer .= "[[Category:Front_end]]\n";
     } elsif ($is_photos_popup)  {
         $footer .= "[[Category:Photos]]\n";
