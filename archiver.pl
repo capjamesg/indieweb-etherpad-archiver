@@ -65,7 +65,7 @@ Dotenv->load;
 my $bot = UppercaseBot->new(
     server      => $ENV{IRC_SERVER},
     port        => $ENV{IRC_PORT},
-    channels    => ["#$ENV{IRC_CHANNEL}"],
+    channels    => ["#indieweb-events", "#indieweb-meta"],
     nick        => $ENV{IRC_NICK},
     name        => $ENV{IRC_NICK}
 );
