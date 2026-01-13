@@ -216,6 +216,7 @@ sub create_page {
         # make url events/first_found_etherpad slug, after https://etherpad.indieweb.org/
         $first_found_etherpad =~ s/\/export\/txt$//;
         $first_found_etherpad_slug = substr($first_found_etherpad, 30);
+        $first_found_etherpad_slug =~ s{^p/}{};
         $wiki_page_url = "events/$first_found_etherpad_slug";
     }
     
