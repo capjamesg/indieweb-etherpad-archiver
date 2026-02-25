@@ -2,6 +2,10 @@
 
 A tool that accepts an [IndieWeb Events](https://events.indieweb.org) page and archives the associated Etherpad page to the [IndieWeb wiki](https://indieweb.org).
 
+> [!IMPORTANT]  
+> This project has been superceded by https://github.com/capjamesg/indieweb-etherpad-archiver-v2, which is a Python implementation of the archiver based on this project. This change was made to help make the project easier to maintain.
+> This repository is no longer actively maintained or in use.
+
 ## IRC Usage
 
 This tool provides an interface over IRC through which an Etherpad page linked to an IndieWeb events page can be archived.
